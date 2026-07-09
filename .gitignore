@@ -1,0 +1,19 @@
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local/editor noise
+.vscode/
+.idea/
+*.swp
+*.tmp
+*.bak
+
+# Test and run outputs
+*.log
+test-output/
+coverage/
+
+# Keep repository copies clean; generated package archives can be rebuilt.
+*.zip
+*.tar.gz
