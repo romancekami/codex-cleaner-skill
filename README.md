@@ -1,22 +1,42 @@
 # Codex Cleaner Skill
 
-`codex-cleaner` is a conservative Codex Desktop cleanup skill for auditing local Codex storage, planning daily-report retention, and dry-running safe cleanup candidates.
+安全审计和清理 Codex Desktop 本地存储的跨平台 Skill。
 
-## What It Does
+[English](README_EN.md) | 简体中文
 
-- Audits `<home>/.codex` without reading full thread contents.
-- Helps plan daily-report retention: archive after 14 days, delete after 30 days, only after dry-run and confirmation.
-- Checks Codex Desktop runtime/cache/temp areas on Windows and macOS.
-- Keeps risky areas read-only by default, including sessions, SQLite/state databases, config/auth files, complete runtime directories, skills, plugins, memories, and automations.
+`codex-cleaner` 的目标不是“自动把东西全删掉”，而是帮你先看清楚 Codex Desktop 在本机占用了哪些空间，再用 dry-run 和明确确认来处理低风险候选项。
 
-## Platform Support
+## 适合什么场景
 
-- Windows: full supported path set for `.codex`, AppData/runtime audit, user temp dry-run, and conservative `.codex` cleanup.
-- macOS: supported for `.codex` audit, retention planning, user temp dry-run, and conservative `.codex` cleanup when PowerShell 7 (`pwsh`) is available. `~/Library` runtime areas are audit-only until locally confirmed.
+- Codex Desktop 会话、日报、缓存、临时文件越来越多，想先审计占用。
+- 想给固定日报任务设置保留策略，例如 14 天后归档、30 天后删除。
+- 想检查 `.codex`、Codex Desktop runtime、用户临时目录里有没有可清理候选。
+- 想在 Codex 关闭后，用 OpenCode、Hermes、Claude Code 等其他 Agent 运行只读检查。
 
-## Quick Start
+## 安全边界
 
-Install by copying this folder to your Codex skills directory, for example:
+默认行为是只读审计或 dry-run，不会直接删除文件。
+
+这个 Skill 默认不会直接删除：
+
+- `sessions` / `archived_sessions`
+- SQLite / state 数据库
+- `config.toml`、`auth.json`、credentials
+- 完整 runtime 目录
+- `skills`、`plugins`、`memories`、`automations`
+- CC Switch、CodeX++ 等第三方应用目录
+
+真正执行清理前，必须先看 dry-run 输出，再明确确认具体清理类别。
+
+## 支持平台
+
+- Windows：完整支持 `.codex`、AppData/runtime 审计、用户 temp dry-run、保守 `.codex` 清理。
+- macOS：支持 `.codex` 审计、日报保留策略、用户 temp dry-run、保守 `.codex` 清理；`~/Library` 下的 Codex Desktop/runtime 区域默认只审计。
+- Linux / 其他系统：可以先运行环境检测；Desktop/runtime 路径需要根据本地环境确认。
+
+## 安装
+
+把本仓库复制到 Codex skills 目录：
 
 ```powershell
 # Windows
@@ -28,7 +48,9 @@ $HOME\.codex\skills\codex-cleaner
 ~/.codex/skills/codex-cleaner
 ```
 
-Run the health check from the skill folder:
+## 快速开始
+
+在 skill 目录下运行健康检查：
 
 ```powershell
 # Windows
@@ -40,16 +62,44 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\health-check.ps1
 pwsh -NoProfile -File ./scripts/health-check.ps1
 ```
 
-For a full read-only dry-run entrypoint:
+运行环境检测：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\detect-environment.ps1
+```
+
+运行完整只读 dry-run 入口：
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\run-external-agent.ps1
 ```
 
+macOS 或 PowerShell 7：
+
 ```bash
 pwsh -NoProfile -File ./scripts/run-external-agent.ps1
 ```
 
-## Safety Model
+## 日报保留策略
 
-Default behavior is audit-only or dry-run. Actual cleanup requires reviewing the dry-run output first and explicitly opting into the exact cleanup category. Do not use this skill to delete complete runtime directories, SQLite databases, credentials, or session files directly.
+内置脚本支持对指定日报线程做保留规划：
+
+- 超过 14 天：归档
+- 超过 30 天：删除
+- 只匹配精确白名单标题
+- 跳过当前线程、置顶线程、运行中线程、非法 UUID、缺失时间的候选
+- 输入只允许 metadata，不允许传入正文、preview 或旧 thread 内容
+
+默认先 dry-run。只有确认后才执行 archive/delete。
+
+## 清理策略
+
+推荐输出分三类：
+
+- `现在可做`：低风险 dry-run 或已白名单候选，但写操作仍需确认。
+- `需要确认`：可能可清理，但需要人工审查、开启类别开关，或先关闭 Codex。
+- `不要触碰`：会话、数据库、认证配置、完整 runtime、技能源码、插件、记忆、自动化等高风险区域。
+
+## 开源协议
+
+MIT License。详见 [LICENSE](LICENSE)。
