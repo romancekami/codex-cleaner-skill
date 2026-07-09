@@ -5,7 +5,8 @@ param(
     [string]$OutputPath = "",
     [string]$ApiHost = "",
     [switch]$DryRun,
-    [switch]$SkipGitCheck
+    [switch]$SkipGitCheck,
+    [switch]$KeepPackage
 )
 
 $ErrorActionPreference = "Stop"
@@ -150,8 +151,9 @@ if (-not $SkipGitCheck) {
     Assert-GitReady -Root $SkillRoot
 }
 
+$generatedOutputPath = -not $OutputPath
 if (-not $OutputPath) {
-    $safeName = "{0}-{1}.zip" -f $slug, $Version
+    $safeName = "{0}-{1}-{2}.zip" -f $slug, $Version, [guid]::NewGuid().ToString("N").Substring(0, 8)
     $OutputPath = Join-Path ([System.IO.Path]::GetTempPath()) $safeName
 }
 
@@ -163,6 +165,7 @@ Write-Output ("- Version: {0}" -f $Version)
 Write-Output ("- Package: {0}" -f $OutputPath)
 Write-Output "- Excluded: .git*, LICENSE, AGENTS.md, and other non-skill root files"
 Write-Output ("- Dry run: {0}" -f $DryRun.IsPresent)
+Write-Output ("- Keep package: {0}" -f $KeepPackage.IsPresent)
 Write-Output ""
 
 $publishArgs = @("publish", $OutputPath, "--version", $Version, "--json")
@@ -179,4 +182,11 @@ if ($ApiHost) {
 & skillhub @publishArgs
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
+}
+
+if ($generatedOutputPath -and -not $KeepPackage -and (Test-Path -LiteralPath $OutputPath -PathType Leaf)) {
+    Remove-Item -LiteralPath $OutputPath -Force
+    Write-Output ("Removed temporary package: {0}" -f $OutputPath)
+} elseif ($generatedOutputPath -and $KeepPackage) {
+    Write-Output ("Kept temporary package: {0}" -f $OutputPath)
 }

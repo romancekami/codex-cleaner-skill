@@ -92,4 +92,6 @@ The script reads `slug` and `version` from `SKILL.md`, creates a temporary zip, 
 skillhub publish <zip> --version <version> --changelog "Update notes" --json
 ```
 
+After a successful publish or dry-run, the script removes the default temporary zip that it generated. Use `-KeepPackage` to keep that package for debugging. If `-OutputPath` is provided explicitly, the script keeps that path by default to avoid deleting a user-selected file.
+
 Use `-SkipGitCheck` only for local packaging tests before commit/push.

@@ -3,7 +3,7 @@ name: codex-cleaner
 description: "安全审计并清理 Codex Desktop 本地存储，覆盖 Windows 和 macOS，重点处理 .codex、Codex Desktop runtime/cache/temp 残留、旧日报线程归档和保留策略。适用于查看 Codex 磁盘占用、清理低风险临时文件、归档旧日报、删除过期日报会话或设计安全的 Codex 保留策略。"
 slug: codex-cleaner-romancekami
 displayName: Codex Cleaner
-version: 0.1.3
+version: 0.1.4
 summary: 安全审计和清理 Codex Desktop 本地存储的跨平台 Skill
 license: MIT
 ---
@@ -67,6 +67,8 @@ Codex Cleaner 用来安全检查 Codex Desktop 的本地存储占用、管理旧
 ```
 
 脚本会从 `SKILL.md` 读取 `slug` 和 `version`，默认检查 git 工作区干净且已推送；除非显式使用 `-SkipGitCheck`，否则不会在未提交或未推送状态下发布。脚本会构建一个只包含 SkillHub 可接受文件的临时 zip，然后调用 `skillhub publish <zip> --version <version> --changelog ... --json`。
+
+发布或 dry-run 成功后，脚本会自动删除自己生成的默认临时 zip。调试时可以加 `-KeepPackage` 保留临时包；如果显式传入 `-OutputPath`，脚本默认保留该路径，避免误删用户指定文件。
 
 ## 平台支持
 

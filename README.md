@@ -128,6 +128,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish-skillhub.p
 skillhub publish <zip> --version <version> --changelog "更新说明" --json
 ```
 
+发布或 dry-run 成功后，脚本会自动删除自己生成的默认临时 zip。调试时可以加 `-KeepPackage` 保留临时包；如果显式传入 `-OutputPath`，脚本默认保留该路径，避免误删用户指定文件。
+
 如需只测试本地打包、但尚未 commit/push，可加 `-SkipGitCheck`；正式发布不建议跳过。
 
 ## 清理策略
