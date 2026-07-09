@@ -63,3 +63,33 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\run-external-agent
 Default behavior is audit-only or dry-run. Actual cleanup requires reviewing the dry-run output first and explicitly opting into the exact cleanup category. Do not use this skill to delete complete runtime directories, SQLite databases, credentials, or session files directly.
 
 After archiving daily-report threads, refresh thread metadata and repeat the dry-run until archive/delete counts are zero. Older matching threads can appear after newer reports are archived.
+
+## Publishing to SkillHub
+
+Recommended update flow:
+
+1. Change repository files and run the relevant checks.
+2. Commit and push to GitHub.
+3. Build a clean zip package, then publish that zip with the SkillHub CLI.
+
+Do not publish the repository directory directly with `skillhub publish .`. The SkillHub server rejects files such as `.gitignore`, `.gitattributes`, and extensionless `LICENSE`. Use the helper script instead; it checks that git is clean and pushed, packages only the skill files, and calls `skillhub publish`.
+
+Dry-run:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish-skillhub.ps1 -DryRun -Changelog "Update notes"
+```
+
+Publish:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish-skillhub.ps1 -Changelog "Update notes"
+```
+
+The script reads `slug` and `version` from `SKILL.md`, creates a temporary zip, and runs:
+
+```powershell
+skillhub publish <zip> --version <version> --changelog "Update notes" --json
+```
+
+Use `-SkipGitCheck` only for local packaging tests before commit/push.

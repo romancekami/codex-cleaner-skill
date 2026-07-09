@@ -100,6 +100,36 @@ pwsh -NoProfile -File ./scripts/run-external-agent.ps1
 
 归档后建议重新拉取线程 metadata 并重复 dry-run，直到 `Archive: 0`、`Delete: 0`。Codex 线程列表可能在归档较新的日报后露出更旧的同标题日报。
 
+## 发布到 SkillHub
+
+推荐更新顺序：
+
+1. 修改仓库文件，并运行必要验证。
+2. 提交并推送 GitHub。
+3. 用发布脚本生成干净 zip 包，再调用 SkillHub CLI 发布。
+
+不要直接把仓库目录交给 `skillhub publish .`。SkillHub 服务端会拒绝 `.gitignore`、`.gitattributes`、无扩展名 `LICENSE` 等文件。发布脚本默认检查当前 git 工作区已提交且已推送，然后只打包 SkillHub 需要的文件。
+
+先预检：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish-skillhub.ps1 -DryRun -Changelog "更新说明"
+```
+
+正式发布：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\publish-skillhub.ps1 -Changelog "更新说明"
+```
+
+脚本会从 `SKILL.md` 读取 `slug` 和 `version`，生成临时 zip，并执行：
+
+```powershell
+skillhub publish <zip> --version <version> --changelog "更新说明" --json
+```
+
+如需只测试本地打包、但尚未 commit/push，可加 `-SkipGitCheck`；正式发布不建议跳过。
+
 ## 清理策略
 
 推荐输出分三类：

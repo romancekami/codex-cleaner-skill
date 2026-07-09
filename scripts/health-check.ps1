@@ -60,7 +60,8 @@ $requiredScripts = @(
     "apply-daily-retention.ps1",
     "runtime-integrity.ps1",
     "health-check.ps1",
-    "run-external-agent.ps1"
+    "run-external-agent.ps1",
+    "publish-skillhub.ps1"
 )
 
 foreach ($scriptName in $requiredScripts) {
