@@ -39,8 +39,8 @@ function Test-CodexCleanerPathUnder {
         [string]$Parent
     )
 
-    $resolvedPath = (Resolve-Path -LiteralPath $Path).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
-    $resolvedParent = (Resolve-Path -LiteralPath $Parent).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+    $resolvedPath = (Get-Item -LiteralPath $Path -Force).FullName.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
+    $resolvedParent = (Get-Item -LiteralPath $Parent -Force).FullName.TrimEnd([System.IO.Path]::DirectorySeparatorChar, [System.IO.Path]::AltDirectorySeparatorChar)
     $separator = [System.IO.Path]::DirectorySeparatorChar
     return $resolvedPath.StartsWith($resolvedParent + $separator, [System.StringComparison]::OrdinalIgnoreCase)
 }

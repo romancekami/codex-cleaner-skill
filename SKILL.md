@@ -1,16 +1,16 @@
 ---
 name: codex-cleaner
-description: "Audit and safely clean Codex Desktop storage on Windows and macOS, centered on .codex plus Codex Desktop runtime/cache/temp leftovers. Use when the user asks to inspect Codex disk usage, reduce old Codex sessions, clean daily report history, archive old Codex threads, delete expired daily-report sessions, remove Codex temp/cache/junk files, or design a safe Codex retention policy."
+description: "安全审计并清理 Codex Desktop 本地存储，覆盖 Windows 和 macOS，重点处理 .codex、Codex Desktop runtime/cache/temp 残留、旧日报线程归档和保留策略。适用于查看 Codex 磁盘占用、清理低风险临时文件、归档旧日报、删除过期日报会话或设计安全的 Codex 保留策略。"
 slug: codex-cleaner-romancekami
 displayName: Codex Cleaner
-version: 0.1.1
+version: 0.1.2
 summary: 安全审计和清理 Codex Desktop 本地存储的跨平台 Skill
 license: MIT
 ---
 
 # Codex Cleaner
 
-Use this skill to inspect Codex Desktop local storage safely, manage old daily-report threads, and clean low-risk Codex runtime leftovers. The main user-data root is `<home>/.codex`; Windows Desktop runtime areas are under `%LOCALAPPDATA%`, while macOS Desktop runtime areas are treated as audit-only candidates under `~/Library`. V4 audits Codex Desktop runtime/log areas and user temp leftovers; V5 adds a read-only coverage map and risk classification; V6 adds a generic external-agent dry-run entrypoint for OpenCode, Hermes, Claude Code, and similar tools; V7 adds a read-only runtime-integrity audit for app runtime `bin` and `runtimes`; V8 adds platform detection and macOS audit-first support. Default to dry-run. Do not edit SQLite data or read full old thread contents.
+Codex Cleaner 用来安全检查 Codex Desktop 的本地存储占用、管理旧日报线程，并清理低风险的 Codex runtime 临时残留。主要用户数据目录是 `<home>/.codex`；Windows 的 Desktop runtime 区域位于 `%LOCALAPPDATA%`，macOS 的 Desktop/runtime 区域默认只做审计，位于 `~/Library` 下。本 Skill 支持 `.codex` 审计、覆盖范围和风险分级、外部 agent dry-run 入口、runtime integrity 只读检查、平台检测，以及 macOS 审计优先流程。默认只做 dry-run，不直接编辑 SQLite 数据，也不读取完整旧线程内容。
 
 Use the appropriate PowerShell prefix:
 
@@ -41,6 +41,12 @@ This external-agent entrypoint runs health check, storage audit, and runtime cle
 
 ```powershell
 <ps> ./scripts/run-external-agent.ps1 -IncludeSystemTemp
+```
+
+For repeat checks after a recent full audit, use fast mode. It keeps the health check and runtime cleanup dry-run, but skips the storage audit and runtime-integrity scan:
+
+```powershell
+<ps> ./scripts/run-external-agent.ps1 -Fast -IncludeSystemTemp
 ```
 
 For non-Codex agents, also read `AGENTS.md` in this folder before running any cleanup command.
@@ -125,6 +131,7 @@ V4 can also list user TEMP Codex leftovers such as old `codex-clipboard-*.png`, 
 - `dry-run`: run the retention script without execution switches and show the keep/archive/delete/skip counts.
 - `user confirmation`: ask for confirmation only when the dry-run contains archive or delete candidates.
 - `execute`: run `-ExecuteArchive` or `-ExecuteArchive -ExecuteDelete` only after confirmation.
+- `repeat`: after archiving, refresh thread metadata and repeat the dry-run until archive/delete counts are `0`, because older matching threads can appear after newer ones are archived.
 
 10. For repeatable retention checks, pass sanitized metadata to the bundled retention script. Do not include `preview` or message content. Each item must use this minimal shape:
 

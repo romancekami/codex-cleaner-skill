@@ -74,6 +74,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\detect-environment
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\run-external-agent.ps1
 ```
 
+刚做过完整审计后，如果只是复验或常规轻量检查，可以用快速入口。它保留健康检查和 runtime cleanup dry-run，但跳过较慢的存储审计和 runtime integrity 扫描：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\run-external-agent.ps1 -Fast -IncludeSystemTemp
+```
+
 macOS 或 PowerShell 7：
 
 ```bash
@@ -91,6 +97,8 @@ pwsh -NoProfile -File ./scripts/run-external-agent.ps1
 - 输入只允许 metadata，不允许传入正文、preview 或旧 thread 内容
 
 默认先 dry-run。只有确认后才执行 archive/delete。
+
+归档后建议重新拉取线程 metadata 并重复 dry-run，直到 `Archive: 0`、`Delete: 0`。Codex 线程列表可能在归档较新的日报后露出更旧的同标题日报。
 
 ## 清理策略
 

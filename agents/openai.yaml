@@ -1,4 +1,4 @@
 interface:
   display_name: "Codex Cleaner"
-  short_description: "Audit .codex and safe Codex leftovers on Windows/macOS"
-  default_prompt: "Use $codex-cleaner to audit Codex Desktop storage and dry-run safe runtime cleanup."
+  short_description: "安全审计 .codex 和 Codex Desktop 低风险残留"
+  default_prompt: "使用 $codex-cleaner 审计 Codex Desktop 本地存储，并 dry-run 低风险清理候选项。"

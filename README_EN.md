@@ -52,6 +52,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\run-external-agent
 pwsh -NoProfile -File ./scripts/run-external-agent.ps1
 ```
 
+For repeat checks after a recent full audit, use fast mode. It keeps the health check and runtime cleanup dry-run, but skips the slower storage audit and runtime-integrity scan:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\run-external-agent.ps1 -Fast -IncludeSystemTemp
+```
+
 ## Safety Model
 
 Default behavior is audit-only or dry-run. Actual cleanup requires reviewing the dry-run output first and explicitly opting into the exact cleanup category. Do not use this skill to delete complete runtime directories, SQLite databases, credentials, or session files directly.
+
+After archiving daily-report threads, refresh thread metadata and repeat the dry-run until archive/delete counts are zero. Older matching threads can appear after newer reports are archived.

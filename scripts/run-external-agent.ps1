@@ -1,6 +1,8 @@
 param(
     [string]$Root = "",
+    [switch]$Fast,
     [switch]$IncludeSystemTemp,
+    [switch]$SkipStorageAudit,
     [switch]$SkipRuntimeIntegrity,
     [switch]$SkipRuntimeDryRun
 )
@@ -36,20 +38,34 @@ Write-Output "- Host: generic agent / PowerShell"
 Write-Output "- Platform: $(Get-CodexCleanerPlatform)"
 Write-Output "- Skill root: $skillRoot"
 Write-Output "- Target root: $Root"
+Write-Output "- Fast mode: $($Fast.IsPresent)"
 Write-Output "- Write actions: none"
+
+$skipStorageAuditEffective = $Fast -or $SkipStorageAudit
+$skipRuntimeIntegrityEffective = $Fast -or $SkipRuntimeIntegrity
 
 Invoke-Step -Name "Health check" -Body {
     & (Join-Path $scriptRoot "health-check.ps1") -Root $Root -SkillRoot $skillRoot
 }
 
-Invoke-Step -Name "Storage audit" -Body {
-    & (Join-Path $scriptRoot "audit-codex.ps1") -Root $Root -RetentionDays 14 -Top 10
+if (-not $skipStorageAuditEffective) {
+    Invoke-Step -Name "Storage audit" -Body {
+        & (Join-Path $scriptRoot "audit-codex.ps1") -Root $Root -RetentionDays 14 -Top 10
+    }
+} else {
+    Write-Output ""
+    Write-Output "## Storage audit"
+    Write-Output "Skipped. Fast/recheck mode keeps only health check and runtime cleanup dry-run."
 }
 
-if (-not $SkipRuntimeIntegrity) {
+if (-not $skipRuntimeIntegrityEffective) {
     Invoke-Step -Name "Runtime integrity audit" -Body {
         & (Join-Path $scriptRoot "runtime-integrity.ps1") -Root $Root
     }
+} else {
+    Write-Output ""
+    Write-Output "## Runtime integrity audit"
+    Write-Output "Skipped. Run without -Fast when app runtime/bin/runtimes need inspection."
 }
 
 if (-not $SkipRuntimeDryRun) {
