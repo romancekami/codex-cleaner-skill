@@ -1,6 +1,11 @@
 ---
 name: codex-cleaner
 description: "Audit and safely clean Codex Desktop storage on Windows and macOS, centered on .codex plus Codex Desktop runtime/cache/temp leftovers. Use when the user asks to inspect Codex disk usage, reduce old Codex sessions, clean daily report history, archive old Codex threads, delete expired daily-report sessions, remove Codex temp/cache/junk files, or design a safe Codex retention policy."
+slug: codex-cleaner-romancekami
+displayName: Codex Cleaner
+version: 0.1.1
+summary: 安全审计和清理 Codex Desktop 本地存储的跨平台 Skill
+license: MIT
 ---
 
 # Codex Cleaner
